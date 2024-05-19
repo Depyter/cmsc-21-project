@@ -26,7 +26,7 @@ Ex. `Abodo69 \First....\ \After you do that....\ \Then....\ \Add the....\ \Serve
 
 The order does not matter, as long the parsing and writing is uniform.  
 For now, \ denotes the start of a string/block of information and another \ as the end.  
-* If there are suggestions to what character or way we can use please tell the group. * 
+**If there are suggestions to what character or way we can use please tell the group.** 
 
 ### 2. Editing existing recipes
 
