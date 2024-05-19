@@ -13,22 +13,22 @@ We will be using the [unordered map](https://www.geeksforgeeks.org/unordered_map
 
 How it is stored in the program is up to who is in charge.
 
-1. ### How to write to each file
+### 1. How to write to each file
 
 Each line holds all the  information of a certain recipe.  
 Put the key at the start of the line.
 
 Ex. `Abodo69 5 6 \Filipino For boyfie\ 30`  
-Ex. `Chokequeen \Steps: 5\ \Ingredients: 5\ \Cusine: Chinesey Choke me queen\ \Cook time: 30 minutes\`  
+Ex. `Chokequeen \Steps: 5\ \Ingredients: 5\ \Cusine: Chinesey Choke me queen\ \Cook time: 30 minutes\`    
 
-Ex. `Abodo69 \Chicken: 600g\ \Soy sauce: 250ml\ \Garlic: 3tbs\ \White vinegar: 120ml\`
-Ex. `Abodo69 \First....\ \After you do that....\ \Then....\ \Add the....\ \Serve with...\`
+Ex. `Abodo69 \Chicken: 600g\ \Soy sauce: 250ml\ \Garlic: 3tbs\ \White vinegar: 120ml\`  
+Ex. `Abodo69 \First....\ \After you do that....\ \Then....\ \Add the....\ \Serve with...\`  
 
 The order does not matter, as long the parsing and writing is uniform.  
 For now, \ denotes the start of a string/block of information and another \ as the end.  
 > If there are suggestions to what character or way we can use please tell the group.  
 
-2. ### Editing existing recipes
+### 2. Editing existing recipes
 
 To edit an existing recipe, we look at the block of information we want to change, then insert the change.  
 
@@ -39,9 +39,22 @@ After which, we either insert or completely remove everything inside that block.
 
 Ex. `Recipe123 \First\ \I inserted this\ \Third\`
 
-3. ### Recipe class
+### 3. Recipe class
 
-The recipe class should store all the information that is from the files and should store the key for the undordered map.  
+The recipe class should store all the information from the files and store the key for the undordered map.   
+We can set the key to be the name itself.  
 The constructor for this class should handle the creation of a new recipe.  
 It should ask the user for recipe steps, ingredients, keywords, etc..  
 
+``` 
+class Recipe {
+
+    string key;
+    // Other important details
+    
+    public:
+        Recipe(string recipe_name) {
+            // Do the create recipe stuff 
+        }
+}; 
+```
