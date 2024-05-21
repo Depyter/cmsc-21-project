@@ -59,7 +59,7 @@ While loops for the steps and ingredients should work, steps and ingredients sho
 
 After the user has inputted the recipe information, write it to the file. 
 *Use file manipulation to write to the file.*
-*DO use memory allocation in c++ like 'new'*
+
 
 Also handle the deletion of the recipe.
 
