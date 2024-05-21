@@ -7,11 +7,10 @@ Ex. One file will be used for ingredients, another will be for the specific step
 We assign a key to a value which is used to determine which file and which line will be accessed.  
 We will be using the list in c++ to store all the recipes for the program.
 
-| Files |
-| --- | | --- | | --- | | --- |
-| General information | Ingredients | Steps | Notes | 
-| --- | | --- | | --- | | --- |
-| Important recipe details like cook time etc. used for the search | Ingredients | Steps | Extra bits of info for the recipe |
+| Files    | General Information                                              | Ingredients        | Steps        | Notes                           |
+|----------|------------------------------------------------------------------|--------------------|--------------|---------------------------------|
+| File   | Important recipe details like cook time etc. used for the search | List of ingredients| Recipe steps | Extra bits of info for the recipe|
+
 
 How it is stored in the program is up to who is in charge.
 
