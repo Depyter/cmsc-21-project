@@ -8,7 +8,9 @@ We assign a key to a value which is used to determine which file and which line 
 We will be using the list in c++ to store all the recipes for the program.
 
 | Files |
+| --- |
 | General information | Ingredients | Steps | Notes | 
+| --- |
 | Important recipe details like cook time etc. used for the search | Ingredients | Steps | Extra bits of info for the recipe |
 
 How it is stored in the program is up to who is in charge.
