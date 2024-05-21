@@ -1,13 +1,31 @@
 #include <iostream>
+#include <list>
+#include <string>
 using namespace std;
 
 // Create a Recipe class that will hold essential information about a recipe.
 // This includes Titles, Ingredients, Keywords, Notes, and Steps.
 class Recipe {
+
+    private:
+        string title;
+        list<string> ingredients;
+        string keywords;
+        string notes;
+        list<string> steps;
+
     public:
+        // Do this when we are loading the recipe from the file.
         Recipe() {
             printf("Recipe constructor\n");
         }
+
+        // Do this when the user wants to add a new recipe.
+        Recipe(string title) {
+            printf("Recipe constructor\n");
+        }
+
+        // Do this when the user wants to delete a recipe.
         ~Recipe() {
             printf("Recipe destructor\n");
         }
