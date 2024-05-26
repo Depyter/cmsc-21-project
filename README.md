@@ -1,5 +1,12 @@
 # RECIPEASY — CMSC 21 PROJECT
 
+### How to run
+
+In the terminal,  
+Do `g++ main.cpp levenshtein.cpp -o main  --std c++20`
+Then `./main`
+Also make sure gcc compiler is up to date.
+
 ###  Main concept: One key for multiple files
 
 We will use a multiple files to store specific aspects of the recipe.  
@@ -14,7 +21,7 @@ We will be using the list in c++ to store all the recipes for the program.
 
 How it is stored in the program is up to who is in charge.
 
-### 1. How to write to each file
+### ~~1. How to write to each file~~
 
 Each line holds all the  information of a certain recipe.  
 Put the key at the start of the line.
@@ -40,9 +47,9 @@ After which, we either insert or completely remove everything inside that block.
 
 Ex. `Recipe123 \First\ \I inserted this\ \Third\`
 
-### 3. Specific tasks to complete
+### 3. Specific tasks to complete *
 
-1. Create the recipe object using classes and [constructor](https://www.geeksforgeeks.org/constructors-c/) 
+~~1. Create the recipe object using classes and [constructor](https://www.geeksforgeeks.org/constructors-c/)~~
 
 The recipe object holds all the information about the recipe,  
 like the recipe name, cusine, steps, etc.. 
@@ -101,7 +108,7 @@ class Recipe {
 
 *DO use unique pointers if applicable in c++ if you need to use pointers*
 
-2. Function to load in each recipe
+~~2. Function to load in each recipe~~
 
 Continuation of constructor above.
 We need a function to load in each recipe in the file.
@@ -148,11 +155,15 @@ It should follow roughly the flow of editing recipe above.
 
 Make the menu for the user.
 
-5. Filter by keyword
+~~5. Filter by keyword~~
 
 User should be able to search by certain keywords, like cuisine, cook time, and also search by notes  
 and unique keywords/tags. 
 
-6. Search 
+~~6. Search~~
 
 Copy and paste fuzzy search and implement it in our program.
+
+5. Polish and implement together tags.cpp with main.cpp
+
+Refactor tags.cpp to make use of the recipe object to make it more integrated with the overall code. 

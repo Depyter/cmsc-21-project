@@ -3,3 +3,7 @@
 !.gitattributes
 !.README.md
 !.main.cpp
+!/data/
+!.levenshtein.cpp
+!.levenshtein.h
+!.tags.cpp

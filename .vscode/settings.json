@@ -77,6 +77,9 @@
         "format": "cpp",
         "stop_token": "cpp",
         "cinttypes": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "deque": "cpp",
+        "unordered_set": "cpp",
+        "fstream": "cpp"
     }
 }
