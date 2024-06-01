@@ -197,8 +197,30 @@ void load_tags() {
     load_data("data/Names.txt", &Recipe::load_tags);
 }
 
-void load_categories() {
+// Load categories from a file
+void loadCategories(const string& categoryFile, map<string, set<string>>& categories) {
+    ifstream file(categoryFile);
+    if (!file) {
+        cerr << "Failed to open the file" << endl;
+        return;
+    }
 
+    string line;
+    while (getline(file, line)) {
+        istringstream iss(line);
+        string category;
+        getline(iss, category, ':');
+
+        size_t startPos = 0;
+        while ((startPos = line.find('/', startPos)) != string::npos) {
+            size_t endPos = line.find('/', startPos + 1);
+            if (endPos != string::npos) {
+                string tag = line.substr(startPos, (endPos - startPos) + 1);
+                categories[category].insert(tag);
+                startPos = endPos + 1;
+            }
+        }
+    }
 }
 
 void delete_recipe() {
@@ -326,7 +348,6 @@ void search_filter() {
 }
 
 void search_category(){
-
 }
 
 void search_name() {
