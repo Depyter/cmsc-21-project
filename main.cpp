@@ -695,9 +695,15 @@ void display_all_tags(){
     }
 
     cout << "All Filters:" << endl;
+    int count = 0;
     for (const auto& tag : uniqueTags) {
-        cout << tag << endl;
+        cout << tag << " ";
+        count++;
+        if (count % 5 == 0) {
+            cout << endl;
+        }
     }
+    cout << endl;
 }
 
 void printout_field(RecipeField field, const Recipe& recipe) {
