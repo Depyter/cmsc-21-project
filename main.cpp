@@ -23,7 +23,7 @@ using namespace std;
 enum class RecipeField {
     Ingredients,
     Steps,
-    Tags
+    Tags,
 };
 
 list<unique_ptr <class Recipe> > recipe_list;
@@ -31,7 +31,16 @@ list<unique_ptr <class Recipe> > recipe_list;
 void append_recipe_to_file(string title);
 void delete_line_from_file(string filename , int nth_line);
 void printout_field(RecipeField field, const Recipe& recipe);
+void saveCategories(const map<string, set<string>>& categories);
+void add_tags(map<string, set<string>>& categories, string tag);
+bool isTagUsedInRecipes(const string& checktag);
+void removeTagFromCategory(map<string, set<string>>& categories, const string& del_tag);
 
+string toUpperCase(const string& input) {
+    string result = input;
+    transform(result.begin(), result.end(), result.begin(), ::toupper);
+    return result;
+}
 
 class Recipe {
     public:
@@ -42,27 +51,29 @@ class Recipe {
         list<string> steps;
 
         // Do this when the user wants to add a new recipe.
-        Recipe() {
+        Recipe(map<string, set<string>>& categories) {
             cout << "Enter the title of the recipe:\n";
             getline(cin, this->title);
             cout << "Enter the ingredients of the recipe: (type 'end' to finish)\n";
-
             string ingredient;
-            while (cin >> ingredient) {
+                while (true) {
+                getline(cin, ingredient);
                 if (ingredient == "end") break;
                 this->ingredients.push_back(ingredient);
             }
 
-            cout << "Enter the tags of the recipe: (type 'end' to finish)\n";
+            cout << "Enter the tags of the recipe (Capitalized): (type 'end' to finish)\n";
             string tag;
-            while (cin >> tag) {
+            while (true) {
+                getline(cin, tag);
                 if (tag == "end") break;
+                tag = toUpperCase(tag);
+                add_tags(categories, tag);
                 this->tags.push_back(tag);
             }
 
             cout << "Enter the steps of the recipe: (type 'end' to finish)\n";
             string step;
-            cin.ignore(); // Ignore any remaining characters in the input buffer
             while (getline(cin, step)) {
                 if (step == "end") break;
                 this->steps.push_back(step);
@@ -197,6 +208,42 @@ void load_tags() {
     load_data("data/Names.txt", &Recipe::load_tags);
 }
 
+void add_tags(map<string, set<string>>& categories, string tag) {
+    bool tagFound = false;
+        for (const auto& category : categories) {
+            if (category.second.find(tag) != category.second.end()) {
+                tagFound = true;
+                break;
+            }
+        }
+
+        if (!tagFound) {
+            cout << tag << " not found in existing categories. Please categorize it by selecting the corresponding number." << endl;
+            int i = 1;
+            for (const auto& category : categories) {
+                cout << i++ << ". " << category.first << endl;
+            }
+
+            int categorySelect;
+            do {
+                cout << "Type the corresponding number: ";
+                cin >> categorySelect;
+            } while (categorySelect < 1 || categorySelect >= categories.size() + 1);
+            cin.ignore();
+
+            i = 1;
+            for (auto& category : categories) {
+                if (i == categorySelect) {
+                    category.second.insert(tag);
+                    saveCategories(categories);
+                    break;
+                }
+                i++;
+            }
+        }
+    cout << "Enter the tags of the recipe (Capitalized): (type 'end' to finish)" << endl;
+}
+
 // Load categories from a file
 void loadCategories(const string& categoryFile, map<string, set<string>>& categories) {
     ifstream file(categoryFile);
@@ -215,7 +262,7 @@ void loadCategories(const string& categoryFile, map<string, set<string>>& catego
         while ((startPos = line.find('/', startPos)) != string::npos) {
             size_t endPos = line.find('/', startPos + 1);
             if (endPos != string::npos) {
-                string tag = line.substr(startPos, (endPos - startPos) + 1);
+                string tag = line.substr(startPos + 1, (endPos - startPos) - 1);
                 categories[category].insert(tag);
                 startPos = endPos + 1;
             }
@@ -223,7 +270,24 @@ void loadCategories(const string& categoryFile, map<string, set<string>>& catego
     }
 }
 
-void delete_recipe() {
+// Save categories to a file
+void saveCategories(const map<string, set<string>>& categories) {
+    ofstream file("data/TagCategories.txt");
+    if (!file) {
+        cerr << "Failed to open the file" << endl;
+        return;
+    }
+
+    for (const auto& category : categories) {
+        file << category.first << ':';
+        for (const auto& tag : category.second) {
+            file << " /" << tag << "/";
+        }
+        file << endl;
+    }
+}
+
+void delete_recipe(map<string, set<string>>& categories) {
     // Delete the recipe from the list and the file.
     string title;
     cout << "Enter the title of the recipe you want to delete:\n";
@@ -239,7 +303,15 @@ void delete_recipe() {
             delete_line_from_file("data/Names.txt", line_num);
             delete_line_from_file("data/Steps.txt", line_num);
             delete_line_from_file("data/Ingredients.txt", line_num);
+
+            list<string> deleted_tags =(*it)->tags;
             it = recipe_list.erase(it); // erase returns the next iterator
+            for (auto& tag: deleted_tags) {
+                if (!isTagUsedInRecipes(tag)) {
+                    removeTagFromCategory(categories, tag);
+                    saveCategories(categories);
+                }
+            }
             break;
         } else {
             ++it;
@@ -279,6 +351,27 @@ void delete_line_from_file(const string filename , int nth_line) {
     rename("data/temp.txt", filename.c_str());
 }
 
+void removeTagFromCategory(map<string, set<string>>& categories, const string& del_tag) {
+    // Iterate over each category in the map
+    for (auto& category_pair : categories) {
+        auto& tags = category_pair.second; // Get the reference to the set of tags for the current category
+        
+        // Find the tag to remove
+        auto it = tags.find(del_tag);
+        
+        // Check if the tag was found before erasing
+        if (it != tags.end()) {
+            tags.erase(it); // Erase the tag
+            
+            // If the set of tags becomes empty after erasing del_tag, erase the entire category from the map
+            if (tags.empty()) {
+                categories.erase(category_pair.first);
+                break;
+            }
+        }
+    }
+}
+
 Recipe* find_recipe(const string& title) {
     for (auto& recipe : recipe_list) {
         if (recipe->title == title) {
@@ -313,45 +406,97 @@ string search_recipe(string keyword = "") {
     return result;
 }
 
-void search_filter() {
-    vector<string> searchTerms;
-    string term;
-    cout << "Enter Filters: (Type 'end' to finish)" << endl;
-
-    while (true) {
-
-            cin >> term;
+void search_filter(const vector<string>& searchTerms = {}) {
+    vector<string> terms;
+    if (searchTerms.empty()) {
+        string term;
+        cout << "Enter Filters: (Type 'end' to finish)" << endl;
+        while (true) {
+            getline(cin, term);
             if (term == "end") break;
-            searchTerms.push_back(term);
+            terms.push_back(term);
         }
+    } else {
+        terms = searchTerms;
+    }
 
-    string line;
     bool foundFlag = false;
-    bool hasAllFilters = true;
-    for (auto &recipe: recipe_list) {
-        for (const auto& term : searchTerms) {
-            if (find(recipe->tags.begin(), recipe->tags.end(), term) == recipe->steps.end()) {
+
+    for (auto& recipe : recipe_list) {
+        bool hasAllFilters = true; // Reset for each recipe
+
+        for (const auto& term : terms) {
+            if (find(recipe->tags.begin(), recipe->tags.end(), term) == recipe->tags.end()) {
                 hasAllFilters = false;
+                break; // No need to check further if one filter is missing
             }
         }
+
         if (hasAllFilters) {
             foundFlag = true;
             cout << endl << "Recipe: " << recipe->title << endl;
             printout_field(RecipeField::Ingredients, *recipe);
-            printout_field(RecipeField::Steps, *recipe);        
+            printout_field(RecipeField::Steps, *recipe);
         }
     }
-    
+
     if (!foundFlag) {
         cout << "Recipe with these tags not found." << endl;
     }
 }
 
-void search_category(){
+void displayTagsByCategory(const map<string, set<string>>& categories) {
+    int categorySelect;
+    do {
+        cout << "Type the corresponding number: ";
+        cin >> categorySelect;
+        if (categorySelect == categories.size() + 1) return;
+    } while (categorySelect < 1 || categorySelect > categories.size());
+    cin.ignore();
+
+
+    int i = 1;
+    vector<string> tagsList;
+    for (const auto& category : categories) {
+        if (i == categorySelect) {
+            cout << category.first << ":" << endl;
+            int j = 1;
+            for (const auto& tag : category.second) {
+                cout << j++ << ". " << tag << endl;
+                tagsList.push_back(tag);
+            }
+            cout << j << ". Back" << endl;
+            break;
+        }
+        i++;
+    }
+
+    int tagSelect;
+    do {
+        cout << "Type the corresponding number of the tag you want to filter by: ";
+        cin >> tagSelect;
+    } while (tagSelect < 1 || tagSelect > tagsList.size() + 1);
+    cin.ignore();
+
+    if (tagSelect != tagsList.size() + 1) {
+        vector<string> searchTerm = {tagsList[tagSelect - 1]};
+        search_filter(searchTerm);
+    }
+}
+
+void displayAllCategories(const map<string, set<string>>& categories) {
+    cout << "Select the corresponding category to display tags of." << endl;
+    int i = 1;
+    for (const auto& category : categories) {
+        cout << i++ << ". " << category.first << endl;
+    }
+    cout << i << ". Back" << endl;
+    displayTagsByCategory(categories);
 }
 
 void search_name() {
     string recipes = search_recipe();
+    if (recipes.empty()) return;
     Recipe* recipe = nullptr;
     int count = std::count(recipes.begin(), recipes.end(), '\n');
 
@@ -365,11 +510,12 @@ void search_name() {
     } else {
         recipe = find_recipe(recipes);
     }
-    cout << endl << "Recipe: " << recipes << endl;
+    cout << endl << "Recipe: " << recipe->title << endl;
     printout_field(RecipeField::Ingredients, *recipe);
     printout_field(RecipeField::Steps, *recipe);
     printout_field(RecipeField::Tags, *recipe);
 }
+
 // Function to write recipes to a file
 void rewrite_file(const string filename, RecipeField field) {
     ofstream outFile(filename);
@@ -391,6 +537,7 @@ void rewrite_file(const string filename, RecipeField field) {
                 }
                 break;
             case RecipeField::Tags:
+                outFile << " $";
                 for (auto &tag : (*it)->tags) {
                     outFile << " /" << tag << "/";
                 }
@@ -413,24 +560,49 @@ bool isDigits(const std::string &str) {
     return true;
 }
 
+// Check if a tag is used in any recipe
+bool isTagUsedInRecipes(const string& checktag) {
+    for (auto &recipe: recipe_list) {
+        for (auto &tag: recipe->tags) {
+            if (tag == checktag) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // Function to edit or delete a specific block of information in a recipe
-void editRecipeBlock(string title, string blockKey, string newContent, RecipeField field) {
+void editRecipeBlock(string title, string blockKey, string newContent, RecipeField field, map<string, set<string>>& categories) {
     // Check if blockKey
     int num = (blockKey != "add") ? stoi(blockKey) - 1 : -1;
     bool updated = false;
 
     for (auto &recipe : recipe_list) {
         if (recipe->title == title) {
-            auto& fieldContainer = (field == RecipeField::Ingredients) ? recipe->ingredients : recipe->steps;
+            auto& fieldContainer = (field == RecipeField::Ingredients) ? recipe->ingredients :(field == RecipeField::Steps) ? recipe->steps : recipe->tags;
 
             if (blockKey == "add") {
+                if (field == RecipeField::Tags) {
+                    add_tags(categories,newContent);
+                }
                 fieldContainer.push_back(newContent);
                 updated = true;
             } else if (num >= 0 && num < static_cast<int>(fieldContainer.size())) {
                 auto it = fieldContainer.begin();
                 std::advance(it, num);
                 if (newContent == "erase") {
+                    string tag;
+                    if (field == RecipeField::Tags) tag = *it;
                     fieldContainer.erase(it);
+
+                    if (field == RecipeField::Tags) {
+                        if (!isTagUsedInRecipes(tag)) {
+                            removeTagFromCategory(categories, tag);
+                            saveCategories(categories);
+                        }
+                    }
+
                 } else {
                     *it = newContent;
                 }
@@ -485,6 +657,7 @@ void printout_field(RecipeField field, const Recipe& recipe) {
                 for (int count = 1; auto& tag : recipe.tags) {
                     cout << count++ << ". " << tag << endl;
                 }
+                break;
 
             default:
                 cout << "Invalid field." << endl;
@@ -493,7 +666,7 @@ void printout_field(RecipeField field, const Recipe& recipe) {
     cout << endl;
 }
 
-void edit_recipe() {
+void edit_recipe(map<string, set<string>>& categories) {
     string recipeKey, blockKey, newContent, field, recipes;
 
     while (true) {
@@ -533,14 +706,19 @@ void edit_recipe() {
 
     RecipeField recipefield;
     while (true) {
-        cout << "Which field to edit: (Ingredients or Steps)" << endl;
+        cout << "Which field to edit: (Ingredients || Steps || Tags)" << endl;
         getline(cin, field);
-        if (field == "Ingredients" || field == "Steps") break;
+        if (field == "Ingredients" || field == "Steps" || field == "Tags") break;
         cout << "Invalid field. Please enter 'Ingredients' or 'Steps'." << endl;
     }
 
-    recipefield = (field == "Ingredients") ? RecipeField::Ingredients : RecipeField::Steps;
-    recipefield = (field == "Steps") ? RecipeField::Tags : RecipeField::Steps;
+    if (field == "Ingredients") {
+        recipefield = RecipeField::Ingredients;
+    } else if (field == "Steps") {
+        recipefield = RecipeField::Steps;
+    } else {
+        recipefield = RecipeField::Tags;
+    }
 
     cout << endl << "Recipe: " << recipeKey << endl;
     printout_field(recipefield, *recipe);
@@ -556,7 +734,7 @@ void edit_recipe() {
     getline(cin, newContent);
 
     cout << "Editing recipe: " << recipeKey << endl;
-    editRecipeBlock(recipeKey, blockKey, newContent, recipefield);
+    editRecipeBlock(recipeKey, blockKey, newContent, recipefield, categories);
 
     if (recipefield == RecipeField::Tags) {
     rewrite_file("data/Names.txt", recipefield);        
@@ -589,9 +767,20 @@ void print_Recipes() {
     }
 }
 
-void add_recipe() {
-    recipe_list.push_back(make_unique<Recipe>());
+void add_recipe(map<string, set<string>>& categories) {
+    recipe_list.push_back(make_unique<Recipe>(categories));
     append_recipe_to_file(recipe_list.back()->title);
+}
+
+void print_category(map<string, set<string>> categories) {
+    for (const auto& category : categories) {
+        cout << category.first << ": ";
+        for (const auto& tag : category.second) {
+            cout << tag << " ";
+        }
+        cout << endl;
+    }
+
 }
 
 int main() {
@@ -601,6 +790,10 @@ int main() {
     load_tags();
     load_steps();
     load_ingredients();
+
+    string categoryFile = "data/TagCategories.txt";
+    map<string, set<string>> categories;
+    loadCategories(categoryFile, categories);
 
     bool run = true;
 
@@ -618,7 +811,8 @@ int main() {
 
         switch (choice) {
         case 1:
-            add_recipe();
+            add_recipe(categories);
+            print_category(categories);
             break;
         case 2: {
                 cout << "1. Search by filter" << endl;
@@ -639,20 +833,19 @@ int main() {
                     break;
                 
                 case 3:
-                    search_category();
+                    displayAllCategories(categories);
                     break;
 
                 default:
                     break;
                 }
             }
-
             break;
         case 3:
-            delete_recipe();
+            delete_recipe(categories);
             break;
         case 4:
-            edit_recipe();
+            edit_recipe(categories);
             break;
         case 5:
             display_all_tags();
