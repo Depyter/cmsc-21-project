@@ -6,12 +6,10 @@
 #include <vector>
 #include <set>
 #include <sstream>
-#include <regex>
 #include <cctype>
 #include <map>
 #include <algorithm>
 #include "levenshtein.h"
-
 
 using namespace std;
 
@@ -35,6 +33,7 @@ void saveCategories(const map<string, set<string>>& categories);
 void add_tags(map<string, set<string>>& categories, string tag);
 bool isTagUsedInRecipes(const string& checktag);
 void removeTagFromCategory(map<string, set<string>>& categories, const string& del_tag);
+Recipe* find_recipe(const string& title);
 
 string toUpperCase(const string& input) {
     string result = input;
@@ -288,18 +287,94 @@ void saveCategories(const map<string, set<string>>& categories) {
     }
 }
 
+string search_recipe(string keyword = "") {
+    // If no keyword is provided, prompt the user to enter one
+    if (keyword.empty()) {
+        cout << "Enter the keyword you want to search for:\n";
+        getline(cin, keyword);
+    }
+
+    string result = "";
+    for (auto &recipe : recipe_list) {
+        if (levenshteinDist(recipe->title, keyword) <= 3) {
+            if (!result.empty()) {
+                result += "\n" + recipe->title;
+            } else {
+                result += recipe->title;
+            }
+        }
+    }
+
+    if (result.empty()) {
+        cout << "Recipe not found." << endl;
+    }
+
+    return result;
+}
+
 void delete_recipe(map<string, set<string>>& categories) {
     // Delete the recipe from the list and the file.
-    string title;
-    cout << "Enter the title of the recipe you want to delete:\n";
-    getline(cin, title);
+    string recipeKey, recipes;
+
+    while (true) {
+        cout << "Enter the recipe key to delete: ";
+        getline(cin, recipeKey);
+        if (recipeKey == "back") return;
+
+        recipes = search_recipe(recipeKey);
+        if (!recipes.empty()) break;
+
+        cout << "Please input a valid recipe." << endl;
+        cout << "Type 'back' to go back to the main menu" << endl;
+    }
+
+    // Store it in a vector
+    // Parse the string to get the recipe titles
+    vector<string> recipeTitles;
+    size_t start = 0;
+    size_t end = recipes.find('\n');
+    while (end != string::npos) {
+        recipeTitles.push_back(recipes.substr(start, end - start));
+        start = end + 1;
+        end = recipes.find('\n', start);
+    }
+    recipeTitles.push_back(recipes.substr(start)); // Add the last title
+
+    Recipe* recipe = nullptr;
+    if (recipeTitles.size() > 1) {
+        cout << "Multiple similar recipes are found:" << endl;
+        for (size_t i = 0; i < recipeTitles.size(); ++i) {
+            cout << i + 1 << ". " << recipeTitles[i] << endl;
+        }
+        cout << "Enter the number of the recipe you want to look up: ";
+        int choice;
+        cin >> choice;
+        while (choice < 1 || choice > recipeTitles.size()) {
+            cout << "Invalid choice. Please enter a number between 1 and " << recipeTitles.size() << ": ";
+            cin >> choice;
+        }
+        string selectedTitle = recipeTitles[choice - 1];
+        recipe = find_recipe(selectedTitle);
+    } else if (levenshteinDist(recipeTitles[0], recipeKey) != 0){
+        cout << "Did you mean " << recipeTitles[0] << "? Yes(y) or No(n): ";
+        string response;
+        getline(cin, response);
+        if (response == "y" || response == "Y") {
+            recipe = find_recipe(recipeTitles[0]);
+        } else {
+            cout << "Returning to main menu." << endl;
+            return;
+        }
+    } else {
+        recipe = find_recipe(recipeTitles[0]);
+    }
 
     auto it = recipe_list.begin();
     int line_num = 0;
     bool found = false;
 
     while (it != recipe_list.end()) {
-        if ((*it)->title == title) {
+        if ((*it)->title == recipe->title) {
             found = true;
             delete_line_from_file("data/Names.txt", line_num);
             delete_line_from_file("data/Steps.txt", line_num);
@@ -321,7 +396,7 @@ void delete_recipe(map<string, set<string>>& categories) {
     }
 
     if (!found) {
-        cout << "Recipe with title " << "'"<< title << "'"<< " not found." << endl;
+        cout << "Recipe with title " << "'"<< recipe->title << "'"<< " not found." << endl;
     } else {
         cout << "Recipe deleted." << endl;
     }
@@ -382,31 +457,6 @@ Recipe* find_recipe(const string& title) {
         }
     }
     return nullptr;
-}
-
-string search_recipe(string keyword = "") {
-    // If no keyword is provided, prompt the user to enter one
-    if (keyword.empty()) {
-        cout << "Enter the keyword you want to search for:\n";
-        getline(cin, keyword);
-    }
-
-    string result = "";
-    for (auto &recipe : recipe_list) {
-        if (levenshteinDist(recipe->title, keyword) <= 3) {
-            if (!result.empty()) {
-                result += "\n" + recipe->title;
-            } else {
-                result += recipe->title;
-            }
-        }
-    }
-
-    if (result.empty()) {
-        cout << "Recipe not found." << endl;
-    }
-
-    return result;
 }
 
 void search_filter(const vector<string>& searchTerms = {}) {

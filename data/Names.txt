@@ -14,7 +14,6 @@ Pho $ /ASIAN/ /SIMMERED/ /2HR/ /BEEF/
 Enchiladas $ /MEXICAN/ /BAKED/ /1HR/ /CHICKEN/
 Lasagna $ /ITALIAN/ /BAKED/ /1.5HR/ /BEEF/
 Miso Soup $ /ASIAN/ /SIMMERED/ /30MIN/ /TOFU/
-Ravioli $ /ITALIAN/ /BOILED/ /30MIN/ /CHEESE/
 Tikka Masala $ /INDIAN/ /SIMMERED/ /1HR/ /CHICKEN/
 Quiche $ /FRENCH/ /BAKED/ /1HR/ /EGG/
-Meth $ /SAVORY/ /MEXICAN/
+Blue Highest Quality Meth $ /SAVORY/ /MEXICAN/

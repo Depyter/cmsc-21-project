@@ -1,5 +1,5 @@
 Adobo /Soy sauce 500ml/ /Chicken 500g/ /Vinegar 120ml/
-Curry /Coconut milk 400ml/ /Chicken 600g/ /Curry paste 150g/ /Potatoes 300g/
+Curry /Coconut milk 400ml/ /Chicken 600g/ /Curry paste 150g/ /Potatoes 300g/ /Carrots 200g/
 Stir-fry /Soy sauce 450ml/ /Beef 700g/ /Ginger 50g/ /Vegetables 500g/
 Ratatouille /Tomatoes 600g/ /Eggplant 400g/ /Zucchini 300g/ /Bell peppers 200g/
 Pad Thai /Rice noodles 300g/ /Shrimp 400g/ /Tamarind paste 100g/ /Bean sprouts 250g/
@@ -14,7 +14,6 @@ Pho /Beef broth 1L/ /Rice noodles 300g/ /Beef slices 400g/ /Bean sprouts 200g/
 Enchiladas /Chicken 700g/ /Enchilada sauce 500ml/ /Tortillas 8/ /Cheese 300g/
 Lasagna /Lasagna noodles 400g/ /Ground beef 600g/ /Tomato sauce 700ml/ /Ricotta cheese 500g/
 Miso Soup /Miso paste 100g/ /Tofu 300g/ /Scallions 100g/ /Seaweed 50g/
-Ravioli /Ravioli pasta 500g/ /Ricotta cheese 400g/ /Spinach 300g/ /Marinara sauce 600ml/
 Tikka Masala /Chicken 800g/ /Tomato sauce 700ml/ /Yogurt 200g/ /Garam masala 50g/
 Quiche /Pie crust 1/ /Eggs 6/ /Bacon 200g/ /Spinach 300g/
-Meth /Jesse Pinkman/ /Walter White/ /Ego/ /MOney/
+Blue Highest Quality Meth /Jesse Pinkman/ /Walter White/ /Ego/ /MOney/
