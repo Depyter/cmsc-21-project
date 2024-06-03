@@ -467,6 +467,7 @@ void search_filter(const vector<string>& searchTerms = {}) {
         while (true) {
             getline(cin, term);
             if (term == "end") break;
+            term = toUpperCase(term);
             terms.push_back(term);
         }
     } else {
@@ -889,9 +890,71 @@ void update_categories(map<string, set<string>>& categories) {
     }
 }
 
+void display_all_recipes(){
+    for(auto& recipe: recipe_list) {
+        cout << "Recipe: " << recipe->title << endl;
+        printout_field(RecipeField::Ingredients, *recipe);
+        printout_field(RecipeField::Steps, *recipe);
+        printout_field(RecipeField::Tags, *recipe);
+    }
+}
+
+// Function to encrypt the string
+std::string encrypt(const string& text, int shift) {
+    std::string result = text;
+    for (int i = 0; i < text.length(); ++i) {
+        if (isupper(text[i])) {
+            result[i] = char(int((text[i] - 'A' + shift) % 26 + 'A'));
+        } else if (islower(text[i])) {
+            result[i] = char(int((text[i] - 'a' + shift) % 26 + 'a'));
+        }
+    }
+    return result;
+}
+
+// Function to decrypt the string
+std::string decrypt(const string& text, int shift) {
+    std::string result = text;
+    for (int i = 0; i < text.length(); ++i) {
+        if (isupper(text[i])) {
+            result[i] = char(int((text[i] - 'A' - shift + 26) % 26 + 'A'));
+        } else if (islower(text[i])) {
+            result[i] = char(int((text[i] - 'a' - shift + 26) % 26 + 'a'));
+        }
+    }
+    return result;
+}
+
+string load_password() {
+    ifstream file("data/password.txt");
+    if (!file) {
+        cerr << "Failed to open the file" << endl;
+        return "";
+    }
+
+    string line;
+    getline(file, line);
+    string decrypted = decrypt(line, 3);
+    file.close();
+    return decrypted;
+}
+
+void save_password(const string& password) {
+    ofstream file("data/password.txt");
+    if (!file) {
+        cerr << "Failed to open the file" << endl;
+        return;
+    }
+
+    string encrypted = encrypt(password, 3);
+    file << encrypted;
+    file.close();
+}
+
 int main() {
     // g++ main.cpp levenshtein.cpp -o main --std c++20
     // Read the recipes from the file and store them in the list.
+    //freakyjason
     init_recipes();
     load_tags();
     load_steps();
@@ -903,7 +966,7 @@ int main() {
     bool run = true;
     bool password = false;
 
-    string correct_password = "yesmommy";
+    string correct_password = load_password();
     string entered_password;
 
     cout << "Enter the password to access the program: ";
@@ -923,7 +986,9 @@ int main() {
             cout << "3. Remove a recipe" << endl;
             cout << "4. Edit recipe" << endl;
             cout << "5. Display All TAGS" << endl;
-            cout << "6. Exit" << endl;
+            cout << "6. Display All Recipes" << endl;
+            cout << "7. Change password" << endl;
+            cout << "8. Exit" << endl;
 
             int choice;
             cin >> choice;
@@ -970,9 +1035,16 @@ int main() {
                 display_all_tags();
                 break;
             case 6:
+                display_all_recipes();
+                break;
+            case 7:
+                cout << "Enter the new password: ";
+                getline(cin, entered_password);
+                save_password(entered_password);
+                break;
+            case 8:
                 run = false;
                 break;
-
             default:
                 break;
             }
@@ -981,7 +1053,8 @@ int main() {
         while (run) {
             cout << "1. Search" << endl;
             cout << "2. Display All TAGS" << endl;
-            cout << "3. Exit" << endl;
+            cout << "3. Displat All Recipes" << endl;
+            cout << "4. Exit" << endl;
 
             int choice;
             cin >> choice;
@@ -1019,9 +1092,11 @@ int main() {
                 display_all_tags();
                 break;
             case 3:
+                display_all_recipes();
+                break;
+            case 4:
                 run = false;
                 break;
-
             default:
                 break;
             }

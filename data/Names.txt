@@ -17,3 +17,4 @@ Miso Soup $ /ASIAN/ /SIMMERED/ /30MIN/ /TOFU/
 Tikka Masala $ /INDIAN/ /SIMMERED/ /1HR/ /CHICKEN/
 Quiche $ /FRENCH/ /BAKED/ /1HR/ /EGG/
 Blue Highest Quality Meth $ /SAVORY/ /MEXICAN/
+234 $ /ASIAN/
